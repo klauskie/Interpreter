@@ -48,22 +48,26 @@ public class Calculator {
     }
 
     private int Add() {
-        MatchAndEat(TokenType.ADD); // podria llamar solamente a EatToken
+        //MatchAndEat(TokenType.ADD); // podria llamar solamente a EatToken
+        EatToken(1);
         return Term();
     }
 
     private int Subtract() {
-        MatchAndEat(TokenType.SUBTRACT);
+        //MatchAndEat(TokenType.SUBTRACT);
+        EatToken(1);
         return Term();
     }
 
     private int Multiply() {
-        MatchAndEat(TokenType.MULTIPLY);
+        //MatchAndEat(TokenType.MULTIPLY);
+        EatToken(1);
         return Factor();
     }
 
     private int Divide() {
-        MatchAndEat(TokenType.DIVIDE);
+        //MatchAndEat(TokenType.DIVIDE);
+        EatToken(1);
         return Factor();
     }
 
@@ -121,9 +125,9 @@ public class Calculator {
         return result;
     }
 
-    public boolean Relation(){
+    public int[] Relation(){
         int leftPart = ArithmeticExpression();
-        boolean result = false;
+        int[] result_list = new int[2];
         TokenType current = CurrentToken().type;
         if(current == TokenType.LESS_THAN ||
                 current == TokenType.MORE_THAN ||
@@ -134,31 +138,32 @@ public class Calculator {
         {
             switch (current){
                 case LESS_THAN:
-                    result = leftPart < ArithmeticExpression();
+                    result_list[1] = (leftPart < ArithmeticExpression()) ? 1 : 0;
                     break;
                 case MORE_THAN:
-                    result = leftPart > ArithmeticExpression();
+                    result_list[1] = (leftPart > ArithmeticExpression()) ? 1 : 0;
                     break;
                 case LESS_EQUALS:
-                    result = leftPart <= ArithmeticExpression();
+                    result_list[1] = (leftPart <= ArithmeticExpression()) ? 1 : 0;
                     break;
                 case MORE_EQUALS:
-                    result = leftPart >= ArithmeticExpression();
+                    result_list[1] = (leftPart >= ArithmeticExpression()) ? 1 : 0;
                     break;
                 case EQUALS:
-                    result = leftPart == ArithmeticExpression();
+                    result_list[1] = (leftPart == ArithmeticExpression()) ? 1 : 0;
                     break;
                 case NOT_EQUALS:
-                    result = leftPart != ArithmeticExpression();
+                    result_list[1] = (leftPart != ArithmeticExpression()) ? 1 : 0;
                     break;
-            }
-        }
 
-        return result;
+            }
+        }else{ result_list[0] = leftPart; }
+
+        return result_list;
 
     }
 
-    public boolean Expresion(){
+    public int[] Expresion(){
         return Relation();
     }
 
