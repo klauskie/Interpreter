@@ -48,7 +48,7 @@ public class Calculator {
     }
 
     private int Add() {
-        MatchAndEat(TokenType.ADD);
+        MatchAndEat(TokenType.ADD); // podria llamar solamente a EatToken
         return Term();
     }
 
@@ -121,29 +121,66 @@ public class Calculator {
         return result;
     }
 
+    public boolean Relation(){
+        int leftPart = ArithmeticExpression();
+        boolean result = false;
+        TokenType current = CurrentToken().type;
+        if(current == TokenType.LESS_THAN ||
+                current == TokenType.MORE_THAN ||
+                current == TokenType.LESS_EQUALS ||
+                current == TokenType.MORE_EQUALS ||
+                current == TokenType.EQUALS ||
+                current == TokenType.NOT_EQUALS)
+        {
+            switch (current){
+                case LESS_THAN:
+                    result = leftPart < ArithmeticExpression();
+                    break;
+                case MORE_THAN:
+                    result = leftPart > ArithmeticExpression();
+                    break;
+                case LESS_EQUALS:
+                    result = leftPart <= ArithmeticExpression();
+                    break;
+                case MORE_EQUALS:
+                    result = leftPart >= ArithmeticExpression();
+                    break;
+                case EQUALS:
+                    result = leftPart == ArithmeticExpression();
+                    break;
+                case NOT_EQUALS:
+                    result = leftPart != ArithmeticExpression();
+                    break;
+            }
+        }
+
+        return result;
+
+    }
+
+    public boolean Expresion(){
+        return Relation();
+    }
+
     public void PrettyPrint(List<Token> tokens)
     {
-        //int numberCount = 0;
-        //int opCount = 0;
+        int numberCount = 0;
+        int opCount = 0;
         for (Token token: tokens)
         {
-            System.out.println("TOKEN....: " + token.text);
-            /*
+
             if (token.type == TokenType.NUMBER)
             {
                 System.out.println("Number....: " + token.text);
                 numberCount++;
             }
-            else if(token.type == TokenType.LESS_THAN)
+            else
             {
                 System.out.println("Operator..: " + token.type);
                 opCount++;
-            }else{
-                System.out.println("Operator..: " + token.type);
-                opCount++;
             }
-            */
+
         }
-        //System.out.println("You have got "+ numberCount + " different number and " + opCount + " operators.");
+        System.out.println("You have got "+ numberCount + " different number and " + opCount + " operators.");
     }
 }

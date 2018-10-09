@@ -120,7 +120,6 @@ public class Tokenizer {
                     if(IsLogicOp(chr)){
                         token += chr;
                     }else{
-                        // saber que pedo con token
                         TokenType operator = FindLogicType(token);
                         tokens.add(new Token(token, operator));
                         token = "";
