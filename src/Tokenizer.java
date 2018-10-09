@@ -5,9 +5,8 @@ public class Tokenizer {
 
     public boolean IsOp(char chr)
     {
-        boolean aritOp = chr == '+' || chr == '-' ||
+        return chr == '+' || chr == '-' ||
                 chr == '*' || chr == '/';
-        return aritOp;
     }
 
     public TokenType FindOpType(char firstOperator)
@@ -32,8 +31,7 @@ public class Tokenizer {
     }
 
     public boolean IsParen(char chr) {
-        boolean prntOp = chr == '(' || chr == ')';
-        return prntOp;
+        return chr == '(' || chr == ')';
     }
 
     public TokenType FindParenType(char chr)
@@ -51,7 +49,28 @@ public class Tokenizer {
         return type;
     }
 
+    public boolean IsLogicOp(char chr) {
+        return chr == '<' || chr == '>' || chr == '=' || chr == '!';
+    }
 
+    public TokenType FindLogicType(String op) {
+        TokenType type = TokenType.UNKNOWN;
+        if(op.equals("<")){
+            type = TokenType.LESS_THAN;
+        }else if(op.equals(">")){
+            type = TokenType.MORE_THAN;
+        }else if(op.equals("==")){
+            type = TokenType.EQUALS;
+        }else if(op.equals("!=")){
+            type = TokenType.NOT_EQUALS;
+        }else if(op.equals("<=")){
+            type = TokenType.LESS_EQUALS;
+        }else if(op.equals(">=")){
+            type = TokenType.MORE_EQUALS;
+        }
+
+        return type;
+    }
 
     public List<Token> Tokenize(String source)
     {
@@ -89,7 +108,23 @@ public class Tokenizer {
                     {
                         tokens.add(new Token(token, TokenType.NUMBER));
                         token = "";
-                        state = TokenizeState.DEFAULT;
+                        if(IsLogicOp(chr)){
+                            state = TokenizeState.OPERATOR;
+                        }else{
+                            state = TokenizeState.DEFAULT;
+                        }
+                        index--;
+                    }
+                    break;
+                case OPERATOR:
+                    if(IsLogicOp(chr)){
+                        token += chr;
+                    }else{
+                        // saber que pedo con token
+                        TokenType operator = FindLogicType(token);
+                        tokens.add(new Token(token, operator));
+                        token = "";
+                        state = TokenizeState.NUMBER;
                         index--;
                     }
                     break;

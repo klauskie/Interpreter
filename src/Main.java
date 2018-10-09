@@ -2,7 +2,7 @@
 public class Main {
 
     public static void main(String[] args) {
-        String expression = "3*3*3*3*3";
+        String expression = "3!=5";
         expression += " ";
         Calculator calc = new Calculator();
         Tokenizer tokenizer = new Tokenizer();

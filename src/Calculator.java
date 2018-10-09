@@ -123,25 +123,27 @@ public class Calculator {
 
     public void PrettyPrint(List<Token> tokens)
     {
-        int numberCount = 0;
-        int opCount = 0;
+        //int numberCount = 0;
+        //int opCount = 0;
         for (Token token: tokens)
         {
+            System.out.println("TOKEN....: " + token.text);
+            /*
             if (token.type == TokenType.NUMBER)
             {
                 System.out.println("Number....: " + token.text);
                 numberCount++;
             }
-            else
+            else if(token.type == TokenType.LESS_THAN)
             {
                 System.out.println("Operator..: " + token.type);
                 opCount++;
+            }else{
+                System.out.println("Operator..: " + token.type);
+                opCount++;
             }
+            */
         }
-        System.out.println("You have got "+
-                numberCount +
-                " different number and "
-                + opCount +
-                " operators.");
+        //System.out.println("You have got "+ numberCount + " different number and " + opCount + " operators.");
     }
 }
