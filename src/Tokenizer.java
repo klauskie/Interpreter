@@ -72,6 +72,10 @@ public class Tokenizer {
         return type;
     }
 
+    public boolean IsABC(char chr){
+        return Character.isLetter(chr);
+    }
+
     public List<Token> Tokenize(String source)
     {
         List<Token> tokens = new ArrayList<Token>();
@@ -83,33 +87,44 @@ public class Tokenizer {
             switch(state)
             {
                 case DEFAULT:
-                    if (IsOp(chr))
-                    {
+                    if (IsOp(chr)) { // if char is an arithmetic operator
                         TokenType opType = FindOpType(chr);
                         tokens.add( new Token(Character.toString(chr), opType) );
                     }
-                    else if (IsLogicOp(chr)){
+                    else if (IsLogicOp(chr)) { // if char is an arithmetic operator
                         state = TokenizeState.OPERATOR;
                         index--;
                     }
-                    else if (IsParen(chr))
-                    {
+                    else if (IsParen(chr)) { // if chr is a parentesis
                         TokenType parenType = FindParenType(chr);
                         tokens.add(new Token(Character.toString(chr), parenType));
                     }
-                    else if (Character.isDigit(chr))
-                    {
+                    else if (Character.isDigit(chr)) { // if chr is a number
                         token += chr;
                         state = TokenizeState.NUMBER;
                     }
+                    else if(IsABC(chr)) { // if chr is a letter
+                        token += chr;
+                        state = TokenizeState.WORD;
+                    }
+                    else if (chr == ':' && source.charAt(index+1) == '=') { // if there is an ':='
+                        token = ":=";
+                        TokenType new_var = TokenType.NEW_VAR;
+                        tokens.add(new Token(token, new_var));
+                        token = "";
+                        index += 1;
+                    }
+                    else if (chr == ';'){ // if chr is ';'
+                        token = ";";
+                        TokenType new_line = TokenType.NEWLINE;
+                        tokens.add(new Token(token, new_line));
+                        token = "";
+                    }
                     break;
                 case NUMBER:
-                    if (Character.isDigit(chr))
-                    {
+                    if (Character.isDigit(chr)) {
                         token += chr;
-                    }
-                    else
-                    {
+                    } else if(!token.equals("")){
                         tokens.add(new Token(token, TokenType.NUMBER));
                         token = "";
                         if(IsLogicOp(chr)){
@@ -123,7 +138,7 @@ public class Tokenizer {
                 case OPERATOR:
                     if(IsLogicOp(chr)){
                         token += chr;
-                    }else{
+                    }else {
                         TokenType operator = FindLogicType(token);
                         tokens.add(new Token(token, operator));
                         token = "";
@@ -131,6 +146,16 @@ public class Tokenizer {
                         index--;
                     }
                     break;
+                case WORD:
+                    if(IsABC(chr)){
+                        token += chr;
+                    }else{
+                        TokenType word = TokenType.WORD;
+                        tokens.add(new Token(token, word));
+                        token = "";
+                        state = TokenizeState.DEFAULT;
+                        index--;
+                    }
             }
         }
         return tokens;

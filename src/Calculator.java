@@ -174,6 +174,9 @@ public class Calculator {
                 System.out.println("Number....: " + token.text);
                 numberCount++;
             }
+            else if (token.type == TokenType.WORD) {
+                System.out.println("WORD..: " + token.text);
+            }
             else
             {
                 System.out.println("Operator..: " + token.type);
