@@ -2,7 +2,7 @@
 public class Main {
 
     public static void main(String[] args) {
-        String expression = "3*5!=3+5";
+        String expression = "((5+1)*100-2+3)>501";
         expression += " ";
         Calculator calc = new Calculator();
         Tokenizer tokenizer = new Tokenizer();
@@ -11,9 +11,7 @@ public class Main {
         calc.tokens = tokenizer.Tokenize(expression);
         calc.PrettyPrint(calc.tokens);
         System.out.println("--------------------------");
-        for (int i: calc.Expresion()) {
-            System.out.println(i);
-        }
+        System.out.println(calc.Expresion().evaluate());
 
     }
 }

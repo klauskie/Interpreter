@@ -83,10 +83,14 @@ public class Tokenizer {
             switch(state)
             {
                 case DEFAULT:
-                    TokenType opType = FindOpType(chr);
                     if (IsOp(chr))
                     {
+                        TokenType opType = FindOpType(chr);
                         tokens.add( new Token(Character.toString(chr), opType) );
+                    }
+                    else if (IsLogicOp(chr)){
+                        state = TokenizeState.OPERATOR;
+                        index--;
                     }
                     else if (IsParen(chr))
                     {

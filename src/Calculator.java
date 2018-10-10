@@ -1,12 +1,11 @@
 import java.util.List;
-import java.util.ArrayList;
 
 public class Calculator {
 
     public int currentTokenPosition = 0;
     public List<Token> tokens;
 
-    //~~~~Token Manipulation Methods Start~~~~
+
     public Token GetToken(int offset)
     {
         if (currentTokenPosition + offset >= tokens.size())
@@ -47,33 +46,29 @@ public class Calculator {
         return token;
     }
 
-    private int Add() {
-        //MatchAndEat(TokenType.ADD); // podria llamar solamente a EatToken
-        EatToken(1);
+    private Node Add() {
+        MatchAndEat(TokenType.ADD); // podria llamar solamente a EatToken
         return Term();
     }
 
-    private int Subtract() {
-        //MatchAndEat(TokenType.SUBTRACT);
-        EatToken(1);
+    private Node Subtract() {
+        MatchAndEat(TokenType.SUBTRACT);
         return Term();
     }
 
-    private int Multiply() {
-        //MatchAndEat(TokenType.MULTIPLY);
-        EatToken(1);
+    private Node Multiply() {
+        MatchAndEat(TokenType.MULTIPLY);
         return Factor();
     }
 
-    private int Divide() {
-        //MatchAndEat(TokenType.DIVIDE);
-        EatToken(1);
+    private Node Divide() {
+        MatchAndEat(TokenType.DIVIDE);
         return Factor();
     }
 
-    public int Factor()
+    public Node Factor()
     {
-        int result = 0;
+        Node result = null;
         if (CurrentToken().type == TokenType.LEFT_PAREN)
         {
             MatchAndEat(TokenType.LEFT_PAREN);
@@ -82,52 +77,51 @@ public class Calculator {
         }
         else if (CurrentToken().type == TokenType.NUMBER)
         {
-            result = new Integer(CurrentToken().text).intValue();
+            result = new NumberNode(Integer.parseInt(CurrentToken().text));
             MatchAndEat(TokenType.NUMBER);
         }
         return result;
     }
-    public int Term()
+    public Node Term()
     {
-        int result = Factor();
+        Node result = Factor();
         while ( CurrentToken().type == TokenType.MULTIPLY ||
                 CurrentToken().type == TokenType.DIVIDE )
         {
             switch(CurrentToken().type)
             {
                 case MULTIPLY:
-                    result = result * Multiply();
+                    result = new BinOpNode(TokenType.MULTIPLY, result, Multiply());
                     break;
                 case DIVIDE:
-                    result = result / Divide();
+                    result = new BinOpNode(TokenType.DIVIDE, result, Divide());
                     break;
             }
         }
         return result;
     }
 
-    public int ArithmeticExpression()
+    public Node ArithmeticExpression()
     {
-        int result = Term();
+        Node result = Term();
         while (CurrentToken().type == TokenType.ADD ||
                 CurrentToken().type == TokenType.SUBTRACT)
         {
             switch(CurrentToken().type)
             {
                 case ADD:
-                    result = result + Add();
+                    result = new BinOpNode(TokenType.ADD, result, Add());
                     break;
                 case SUBTRACT:
-                    result = result - Subtract();
+                    result = new BinOpNode(TokenType.SUBTRACT, result, Subtract());
                     break;
             }
         }
         return result;
     }
 
-    public int[] Relation(){
-        int leftPart = ArithmeticExpression();
-        int[] result_list = new int[2];
+    public Node Relation(){
+        Node result = ArithmeticExpression();
         TokenType current = CurrentToken().type;
         if(current == TokenType.LESS_THAN ||
                 current == TokenType.MORE_THAN ||
@@ -136,34 +130,35 @@ public class Calculator {
                 current == TokenType.EQUALS ||
                 current == TokenType.NOT_EQUALS)
         {
+            EatToken(1);
             switch (current){
                 case LESS_THAN:
-                    result_list[1] = (leftPart < ArithmeticExpression()) ? 1 : 0;
+                    result = new BinOpNode(TokenType.LESS_THAN, result, ArithmeticExpression());
                     break;
                 case MORE_THAN:
-                    result_list[1] = (leftPart > ArithmeticExpression()) ? 1 : 0;
+                    result = new BinOpNode(TokenType.MORE_THAN, result, ArithmeticExpression());
                     break;
                 case LESS_EQUALS:
-                    result_list[1] = (leftPart <= ArithmeticExpression()) ? 1 : 0;
+                    result = new BinOpNode(TokenType.LESS_EQUALS, result, ArithmeticExpression());
                     break;
                 case MORE_EQUALS:
-                    result_list[1] = (leftPart >= ArithmeticExpression()) ? 1 : 0;
+                    result = new BinOpNode(TokenType.MORE_EQUALS, result, ArithmeticExpression());
                     break;
                 case EQUALS:
-                    result_list[1] = (leftPart == ArithmeticExpression()) ? 1 : 0;
+                    result = new BinOpNode(TokenType.EQUALS, result, ArithmeticExpression());
                     break;
                 case NOT_EQUALS:
-                    result_list[1] = (leftPart != ArithmeticExpression()) ? 1 : 0;
+                    result = new BinOpNode(TokenType.NOT_EQUALS, result, ArithmeticExpression());
                     break;
 
             }
-        }else{ result_list[0] = leftPart; }
+        }
 
-        return result_list;
+        return result;
 
     }
 
-    public int[] Expresion(){
+    public Node Expresion(){
         return Relation();
     }
 
