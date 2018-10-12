@@ -107,12 +107,9 @@ public class Tokenizer {
                         token += chr;
                         state = TokenizeState.WORD;
                     }
-                    else if (chr == ':' && source.charAt(index+1) == '=') { // if there is an ':='
-                        token = ":=";
-                        TokenType new_var = TokenType.NEW_VAR;
-                        tokens.add(new Token(token, new_var));
-                        token = "";
-                        index += 1;
+                    else if (chr == ':') { // if there is an ':='
+                        token += chr;
+                        state = TokenizeState.ASSIGN;
                     }
                     else if (chr == ';'){ // if chr is ';'
                         token = ";";
@@ -156,8 +153,25 @@ public class Tokenizer {
                         state = TokenizeState.DEFAULT;
                         index--;
                     }
+                    break;
+                case ASSIGN:
+                    if(chr == '='){
+                        token += chr;
+                    }if(token.equals(":=")){
+                        TokenType new_var = TokenType.NEW_VAR;
+                        tokens.add(new Token(token, new_var));
+                        token = "";
+                        state = TokenizeState.DEFAULT;
+                    } if(token.equals(":")){
+                        TokenType type = TokenType.ASSIGN;
+                        tokens.add(new Token(token, type));
+                        token = "";
+                        state = TokenizeState.DEFAULT;
+                        index--;
+                    }
+                    break;
             }
-        }
+        } // r := 4;
         return tokens;
     }
 

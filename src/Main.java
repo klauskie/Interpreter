@@ -2,7 +2,7 @@
 public class Main {
 
     public static void main(String[] args) {
-        String expression = "hola := 3;";
+        String expression = "r : 7;";
         expression += " ";
         Calculator calc = new Calculator();
         Tokenizer tokenizer = new Tokenizer();

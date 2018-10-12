@@ -1,3 +1,3 @@
 public enum TokenizeState {
-    DEFAULT, OPERATOR, NUMBER, WORD
+    DEFAULT, OPERATOR, NUMBER, WORD, ASSIGN
 }
