@@ -139,7 +139,7 @@ public class Tokenizer {
                         TokenType operator = FindLogicType(token);
                         tokens.add(new Token(token, operator));
                         token = "";
-                        state = TokenizeState.NUMBER;
+                        state = TokenizeState.DEFAULT;
                         index--;
                     }
                     break;

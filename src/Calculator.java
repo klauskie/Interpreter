@@ -1,10 +1,13 @@
 import java.util.List;
 
-public class Calculator {
+public class Calculator extends Parser{
 
     public int currentTokenPosition = 0;
-    public List<Token> tokens;
+    //public List<Token> tokens;
 
+    public Calculator(List<Token> tokens){
+        super(tokens);
+    }
 
     public Token GetToken(int offset)
     {
@@ -15,11 +18,6 @@ public class Calculator {
         return tokens.get(currentTokenPosition + offset);
     }
 
-    public Token NextToken()
-    {
-        return GetToken(1);
-    }
-
     public Token CurrentToken()
     {
         return GetToken(0);
@@ -28,11 +26,11 @@ public class Calculator {
     // Just eats the token(s) given in the offset
     public void EatToken(int offset)
     {
-        currentTokenPosition = currentTokenPosition + offset;
+        currentTokenPosition += offset;
     }
 
     // Eats the token given type and returns eaten token
-    public Token MatchAndEat(TokenType type)
+    public void MatchAndEat(TokenType type)
     {
         Token token = CurrentToken();
         if (CurrentToken().type != type)
@@ -43,7 +41,6 @@ public class Calculator {
             System.exit(0);
         }
         EatToken(1);
-        return token;
     }
 
     private Node Add() {
@@ -66,7 +63,7 @@ public class Calculator {
         return Factor();
     }
 
-    public Node Factor()
+    private Node Factor()
     {
         Node result = null;
         if (CurrentToken().type == TokenType.LEFT_PAREN)
@@ -82,9 +79,18 @@ public class Calculator {
         }
         return result;
     }
+
+    private Node SignedFactor(){
+        if(CurrentToken().type == TokenType.SUBTRACT){
+            MatchAndEat(TokenType.SUBTRACT);
+            return new NegOpNode(Factor());
+        }
+        return Factor();
+    }
+
     public Node Term()
     {
-        Node result = Factor();
+        Node result = SignedFactor();
         while ( CurrentToken().type == TokenType.MULTIPLY ||
                 CurrentToken().type == TokenType.DIVIDE )
         {
