@@ -12,7 +12,7 @@ public class WhileNode extends Node {
     public Object evaluate() {
         Object temp = null;
         while((boolean)condition.evaluate()){
-            temp = body.evaluate();
+            temp = this.body.evaluate();
         }
         return temp;
     }
