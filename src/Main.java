@@ -9,44 +9,39 @@ public class Main {
     public static void main(String[] args) {
 
         Tokenizer tokenizer = new Tokenizer();
-        Calculator calc = new Calculator();
 
         String path = args[0];
         String source = LeerArchivo(path);
         source += " ";
 
-        calc.tokens = tokenizer.Tokenize(source);
-        calc.PrettyPrint(calc.tokens);
+        Calculator parser = new Calculator(tokenizer.Tokenize(source));
 
-        Node script = calc.Block();
+        Node script = parser.Block();
 
         script.evaluate();
 
         // print map
-        calc.symbolTable.forEach((k, v) -> System.out.println((k + ":" + v)));
+        parser.stack.forEach((k, v) -> System.out.println((k + ":" + v)));
     }
 
 
     public static void init(){
         Tokenizer tokenizer = new Tokenizer();
-        Calculator calc = new Calculator();
-
         String source =
                 "var := 4 " +
                 "while var != 0 " +
                 "var : var - 1 END " +
                 "END ";
 
-        calc.tokens = tokenizer.Tokenize(source);
-        calc.PrettyPrint(calc.tokens);
+
+        Calculator calc = new Calculator(tokenizer.Tokenize(source));
 
         Node script = calc.Block();
 
         script.evaluate();
 
-
         // print map
-        calc.symbolTable.forEach((k, v) -> System.out.println((k + ":" + v)));
+        calc.stack.forEach((k, v) -> System.out.println((k + ":" + v)));
     }
 
 
@@ -59,7 +54,6 @@ public class Main {
 
             while (line != null) {
                 sb.append(line);
-                sb.append(" ");
                 line = br.readLine();
             }
             return sb.toString();

@@ -7,11 +7,14 @@ import java.util.Map;
 public class Calculator {
 
     private int currentTokenPosition = 0;
-    public List<Token> tokens;
-    public Map<String, Object> symbolTable = new HashMap<String, Object>();
+    private List<Token> tokens;
+    public Map<String, Object> stack = new HashMap<String, Object>();
 
-    public Token GetToken(int offset)
-    {
+    public Calculator(List<Token> tokens){
+        this.tokens = tokens;
+    }
+
+    private Token GetToken(int offset) {
         if (currentTokenPosition + offset >= tokens.size())
         {
             return new Token("", TokenType.EOF);
@@ -19,38 +22,26 @@ public class Calculator {
         return tokens.get(currentTokenPosition + offset);
     }
 
-    public Token CurrentToken()
+    private Token CurrentToken()
     {
         return GetToken(0);
     }
 
-    public Token NextToken() {
+    private Token NextToken() {
         return GetToken(1);
     }
 
-    private int getCurrentTokenPosition(){
-        return currentTokenPosition;
-    }
-
-    private void setCurrentTokenPosition(int new_pos){
-        currentTokenPosition = new_pos;
-    }
-
     // Just eats the token(s) given in the offset
-    public void EatToken(int offset)
+    private void EatToken(int offset)
     {
         currentTokenPosition += offset;
     }
 
     // Eats the token given type and returns eaten token
-    public Token MatchAndEat(TokenType type)
-    {
+    private Token MatchAndEat(TokenType type) {
         Token token = CurrentToken();
-        if (CurrentToken().type != type)
-        {
-            System.out.println("Saw " + token.type +
-                    " but " + type +
-                    " expected");
+        if (CurrentToken().type != type) {
+            System.out.println("Saw " + token.type + " but " + type + " expected");
             System.exit(0);
         }
         EatToken(1);
@@ -87,22 +78,22 @@ public class Calculator {
         return Term();
     }
 
-    private Node Factor()
-    {
+    private Node Factor() {
+
         Node result = null;
-        if (CurrentToken().type == TokenType.LEFT_PAREN)
-        {
+        if (CurrentToken().type == TokenType.LEFT_PAREN) {
+
             MatchAndEat(TokenType.LEFT_PAREN);
-            //result = ArithmeticExpression();
             result = Relation();
             MatchAndEat(TokenType.RIGHT_PAREN);
         }
-        else if (CurrentToken().type == TokenType.NUMBER)
-        {
+        else if (CurrentToken().type == TokenType.NUMBER) {
+
             result = new NumberNode(Integer.parseInt(CurrentToken().text));
             MatchAndEat(TokenType.NUMBER);
-        }else if (CurrentToken().type == TokenType.WORD)
-        {
+        }
+        else if (CurrentToken().type == TokenType.WORD) {
+
             Token token = MatchAndEat(TokenType.WORD);
             result = new VariableNode(token.text, this);
         }
@@ -117,16 +108,16 @@ public class Calculator {
         return Factor();
     }
 
-    public Node Term()
-    {
+    private Node Term() {
+
         Node result = SignedFactor();
         while ( CurrentToken().type == TokenType.MULTIPLY ||
                 CurrentToken().type == TokenType.DIVIDE ||
                 CurrentToken().type == TokenType.EXPONENT ||
                 CurrentToken().type == TokenType.MODULUS)
         {
-            switch(CurrentToken().type)
-            {
+            switch(CurrentToken().type) {
+
                 case MULTIPLY:
                     result = new BinOpNode(TokenType.MULTIPLY, result, Multiply());
                     break;
@@ -144,14 +135,13 @@ public class Calculator {
         return result;
     }
 
-    public Node ArithmeticExpression()
-    {
+    private Node ArithmeticExpression() {
+
         Node result = Term();
         while (CurrentToken().type == TokenType.ADD ||
                 CurrentToken().type == TokenType.SUBTRACT)
         {
-            switch(CurrentToken().type)
-            {
+            switch(CurrentToken().type) {
                 case ADD:
                     result = new BinOpNode(TokenType.ADD, result, Add());
                     break;
@@ -163,7 +153,7 @@ public class Calculator {
         return result;
     }
 
-    public Node Relation(){
+    private Node Relation(){
         Node result = ArithmeticExpression();
         TokenType current = CurrentToken().type;
         if(current == TokenType.LESS_THAN ||
@@ -207,12 +197,12 @@ public class Calculator {
 
     // Stuff with Hashmap
     public Object setVariable(String name, Object value) {
-        symbolTable.put(name, value);
+        stack.put(name, value);
         return value;
     }
 
     public Object getVariable(String name) {
-        Object value = symbolTable.get(name);
+        Object value = stack.get(name);
         if (value != null) {
             return value;
         }
@@ -263,19 +253,24 @@ public class Calculator {
         Node condition = null, thenPart = null, elsePart = null;
 
         MatchAndEat(TokenType.IF);
+        MatchAndEat(TokenType.LEFT_PAREN);
         condition = Expression();
+        MatchAndEat(TokenType.RIGHT_PAREN);
         thenPart = Block();
 
-        if ( CurrentToken().type == TokenType.ELSE )
-        {
+        if ( CurrentToken().type == TokenType.ELSE ) {
+
             MatchAndEat(TokenType.ELSE);
-            if ( CurrentToken().type == TokenType.IF ) elsePart = IFFunc();
+
+            if ( CurrentToken().type == TokenType.IF ) {
+                elsePart = IFFunc();
+            }
             else elsePart = Block();
         }
         return new IfNode(condition, thenPart, elsePart);
     }
 
-    public Node FunctionDef(){
+    private Node FunctionDef(){
         MatchAndEat(TokenType.FUNCTION);
         String functionName = MatchAndEat(TokenType.WORD).text;
 
@@ -288,7 +283,36 @@ public class Calculator {
         return new AssignmentNode(functionName, function, this);
     }
 
-    public List<Parameter> DefParameters()
+    private boolean IsFunctionCall(){
+        TokenType type = CurrentToken().type;
+        return type == TokenType.WORD && NextToken().type == TokenType.LEFT_PAREN;
+    }
+
+    private Node FunctionCall(){
+        String funcName = MatchAndEat(TokenType.WORD).text;
+        Node functionNode = new VariableNode(funcName, this);
+        MatchAndEat(TokenType.LEFT_PAREN);
+        List<Parameter> parameters = FunctionCallParameters();
+        MatchAndEat(TokenType.RIGHT_PAREN);
+        return new FunctionCallNode(functionNode, parameters, this);
+    }
+
+    private List<Parameter> FunctionCallParameters(){
+        List<Parameter> actualParameters = null;
+        if (Expression() != null)
+        {
+            actualParameters = new ArrayList<>();
+            actualParameters.add(new Parameter(Expression()));
+            while (CurrentToken().type == TokenType.COMMA)
+            {
+                MatchAndEat(TokenType.COMMA);
+                actualParameters.add(new Parameter(Expression()));
+            }
+        }
+        return actualParameters;
+    }
+
+    private List<Parameter> DefParameters()
     {
         List<Parameter> parameters = null;
         if (CurrentToken().type == TokenType.WORD){
@@ -304,7 +328,7 @@ public class Calculator {
         return parameters;
     }
 
-    public Node Statement(){
+    private Node Statement(){
         Node nodo = null;
         TokenType type = CurrentToken().type;
 
@@ -320,6 +344,8 @@ public class Calculator {
             nodo = IFFunc();
         }else if(CurrentToken().type == TokenType.FUNCTION){
             nodo = FunctionDef();
+        }else if(IsFunctionCall()){
+            nodo = FunctionCall();
         }
         return nodo;
     }
@@ -359,6 +385,5 @@ public class Calculator {
             }
 
         }
-        System.out.println("You have got "+ numberCount + " different number and " + opCount + " operators.");
     }
 }
