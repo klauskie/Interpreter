@@ -72,14 +72,4 @@ public class BinOpNode extends Node{
         return result;
     }
 
-    public static void main(String[] args){
-        NumberNode firstNumber = new NumberNode(100);
-        NumberNode secondNumber = new NumberNode(100);
-        BoolNode first = new BoolNode(true);
-        BoolNode second = new BoolNode(true);
-        Node sumNode = new BinOpNode(TokenType.ADD, firstNumber, secondNumber);
-        System.out.println("100 + 100 = " + sumNode.evaluate());
-        Node compareNode = new BinOpNode(TokenType.EQUALS, firstNumber, secondNumber);
-        System.out.println("100 == 100 = " + compareNode.evaluate());
-    }
 }

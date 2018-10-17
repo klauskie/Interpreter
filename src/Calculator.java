@@ -1,17 +1,14 @@
 import java.util.List;
 import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Calculator {
 
-    public int currentTokenPosition = 0;
+    private int currentTokenPosition = 0;
     public List<Token> tokens;
     public Map<String, Object> symbolTable = new HashMap<String, Object>();
-
-    /*public Calculator(List<Token> tokens){
-        super(tokens);
-    }*/
 
     public Token GetToken(int offset)
     {
@@ -29,6 +26,14 @@ public class Calculator {
 
     public Token NextToken() {
         return GetToken(1);
+    }
+
+    private int getCurrentTokenPosition(){
+        return currentTokenPosition;
+    }
+
+    private void setCurrentTokenPosition(int new_pos){
+        currentTokenPosition = new_pos;
     }
 
     // Just eats the token(s) given in the offset
@@ -241,7 +246,9 @@ public class Calculator {
     private Node WhileFunc(){
         Node condition, body;
         MatchAndEat(TokenType.WHILE);
+        MatchAndEat(TokenType.LEFT_PAREN);
         condition = Expression();
+        MatchAndEat(TokenType.RIGHT_PAREN);
         body = Block();
         return new WhileNode(condition, body);
     }
@@ -268,6 +275,35 @@ public class Calculator {
         return new IfNode(condition, thenPart, elsePart);
     }
 
+    public Node FunctionDef(){
+        MatchAndEat(TokenType.FUNCTION);
+        String functionName = MatchAndEat(TokenType.WORD).text;
+
+        MatchAndEat(TokenType.LEFT_PAREN);
+        List<Parameter> parameters = DefParameters();
+        MatchAndEat(TokenType.RIGHT_PAREN);
+
+        Node functionBody = Block();
+        FunctionNode function = new FunctionNode(functionName, functionBody, parameters);
+        return new AssignmentNode(functionName, function, this);
+    }
+
+    public List<Parameter> DefParameters()
+    {
+        List<Parameter> parameters = null;
+        if (CurrentToken().type == TokenType.WORD){
+            parameters = new ArrayList<>();
+            parameters.add(new Parameter(MatchAndEat(TokenType.WORD).text));
+
+            while (CurrentToken().type == TokenType.COMMA)
+            {
+                MatchAndEat(TokenType.COMMA);
+                parameters.add(new Parameter(MatchAndEat(TokenType.WORD).text));
+            }
+        }
+        return parameters;
+    }
+
     public Node Statement(){
         Node nodo = null;
         TokenType type = CurrentToken().type;
@@ -282,19 +318,22 @@ public class Calculator {
             nodo = WhileFunc();
         }else if(IsIfElse()){
             nodo = IFFunc();
+        }else if(CurrentToken().type == TokenType.FUNCTION){
+            nodo = FunctionDef();
         }
         return nodo;
     }
 
+
     public BlockNode Block()
     {
+        MatchAndEat(TokenType.STARTBLOCK);
         List<Node> statements = new LinkedList<Node>();
-        while ( CurrentToken().type != TokenType.END && CurrentToken().type != TokenType.NEWLINE)
+        while ( CurrentToken().type != TokenType.ENDBLOCK)
         {
             statements.add(Statement());
         }
-        //MatchAndEat(TokenType.END);
-        EatToken(1);
+        MatchAndEat(TokenType.ENDBLOCK);
         return new BlockNode(statements);
     }
 

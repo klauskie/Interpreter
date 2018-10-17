@@ -16,11 +16,14 @@ public class Main {
         source += " ";
 
         calc.tokens = tokenizer.Tokenize(source);
-        //calc.PrettyPrint(calc.tokens);
+        calc.PrettyPrint(calc.tokens);
 
         Node script = calc.Block();
 
         script.evaluate();
+
+        // print map
+        calc.symbolTable.forEach((k, v) -> System.out.println((k + ":" + v)));
     }
 
 

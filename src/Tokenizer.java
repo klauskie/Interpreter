@@ -3,14 +3,14 @@ import java.util.ArrayList;
 
 public class Tokenizer {
 
-    private boolean IsOp(char chr)
+    private boolean IsOperator(char chr)
     {
         return chr == '+' || chr == '-' ||
                 chr == '*' || chr == '/' ||
                 chr == '^' || chr == '%';
     }
 
-    private TokenType FindOpType(char firstOperator)
+    private TokenType FindOperatorType(char firstOperator)
     {
         TokenType type = TokenType.UNKNOWN;
         switch(firstOperator)
@@ -56,7 +56,7 @@ public class Tokenizer {
         return type;
     }
 
-    private boolean IsLogicOp(char chr) {
+    private boolean IsLogicOperator(char chr) {
         return chr == '<' || chr == '>' || chr == '=' || chr == '!';
     }
 
@@ -79,6 +79,23 @@ public class Tokenizer {
         return type;
     }
 
+    private boolean IsBlock(char chr){
+        return chr == '{' || chr == '}';
+    }
+
+    private TokenType FindBlockType(char chr){
+        TokenType type = TokenType.UNKNOWN;
+        switch (chr){
+            case '{':
+                type = TokenType.STARTBLOCK;
+                break;
+            case '}':
+                type = TokenType.ENDBLOCK;
+                break;
+        }
+        return type;
+    }
+
     private boolean IsABC(char chr){
         return Character.isLetter(chr);
     }
@@ -92,11 +109,13 @@ public class Tokenizer {
         }else if(word.equals("E")){
             result = TokenType.E;
         }else if(word.equals("END")){
-            result = TokenType.END;
+            result = TokenType.ENDBLOCK;
         }else if(word.equals("if")){
             result = TokenType.IF;
         }else if(word.equals("else")){
             result = TokenType.ELSE;
+        }else if(word.equals("function")){
+            result = TokenType.FUNCTION;
         }
         return result;
     }
@@ -112,11 +131,11 @@ public class Tokenizer {
             switch(state)
             {
                 case DEFAULT:
-                    if (IsOp(chr)) { // if char is an arithmetic operator
-                        TokenType opType = FindOpType(chr);
+                    if (IsOperator(chr)) { // if char is an arithmetic operator
+                        TokenType opType = FindOperatorType(chr);
                         tokens.add( new Token(Character.toString(chr), opType) );
                     }
-                    else if (IsLogicOp(chr)) { // if char is an arithmetic operator
+                    else if (IsLogicOperator(chr)) { // if char is an arithmetic operator
                         state = TokenizeState.OPERATOR;
                         index--;
                     }
@@ -141,6 +160,16 @@ public class Tokenizer {
                         TokenType new_line = TokenType.NEWLINE;
                         tokens.add(new Token(token, new_line));
                         token = "";
+                    }else if(chr == ','){ // if chr is a comma
+                        token += chr;
+                        TokenType comma = TokenType.COMMA;
+                        tokens.add(new Token(token, comma));
+                        token = "";
+                    }else if(IsBlock(chr)){
+                        token += chr;
+                        tokens.add(new Token(token, FindBlockType(chr)));
+                        token = "";
+
                     }
                     break;
                 case NUMBER:
@@ -149,7 +178,7 @@ public class Tokenizer {
                     } else if(!token.equals("")){
                         tokens.add(new Token(token, TokenType.NUMBER));
                         token = "";
-                        if(IsLogicOp(chr)){
+                        if(IsLogicOperator(chr)){
                             state = TokenizeState.OPERATOR;
                         }else{
                             state = TokenizeState.DEFAULT;
@@ -158,7 +187,7 @@ public class Tokenizer {
                     }
                     break;
                 case OPERATOR:
-                    if(IsLogicOp(chr)){
+                    if(IsLogicOperator(chr)){
                         token += chr;
                     }else {
                         TokenType operator = FindLogicType(token);
