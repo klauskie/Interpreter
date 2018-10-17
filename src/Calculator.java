@@ -1,13 +1,17 @@
 import java.util.List;
+import java.util.LinkedList;
+import java.util.HashMap;
+import java.util.Map;
 
-public class Calculator extends Parser{
+public class Calculator {
 
     public int currentTokenPosition = 0;
-    //public List<Token> tokens;
+    public List<Token> tokens;
+    public Map<String, Object> symbolTable = new HashMap<String, Object>();
 
-    public Calculator(List<Token> tokens){
+    /*public Calculator(List<Token> tokens){
         super(tokens);
-    }
+    }*/
 
     public Token GetToken(int offset)
     {
@@ -23,6 +27,10 @@ public class Calculator extends Parser{
         return GetToken(0);
     }
 
+    public Token NextToken() {
+        return GetToken(1);
+    }
+
     // Just eats the token(s) given in the offset
     public void EatToken(int offset)
     {
@@ -30,7 +38,7 @@ public class Calculator extends Parser{
     }
 
     // Eats the token given type and returns eaten token
-    public void MatchAndEat(TokenType type)
+    public Token MatchAndEat(TokenType type)
     {
         Token token = CurrentToken();
         if (CurrentToken().type != type)
@@ -41,6 +49,7 @@ public class Calculator extends Parser{
             System.exit(0);
         }
         EatToken(1);
+        return token;
     }
 
     private Node Add() {
@@ -69,13 +78,18 @@ public class Calculator extends Parser{
         if (CurrentToken().type == TokenType.LEFT_PAREN)
         {
             MatchAndEat(TokenType.LEFT_PAREN);
-            result = ArithmeticExpression();
+            //result = ArithmeticExpression();
+            result = Relation();
             MatchAndEat(TokenType.RIGHT_PAREN);
         }
         else if (CurrentToken().type == TokenType.NUMBER)
         {
             result = new NumberNode(Integer.parseInt(CurrentToken().text));
             MatchAndEat(TokenType.NUMBER);
+        }else if (CurrentToken().type == TokenType.WORD)
+        {
+            Token token = MatchAndEat(TokenType.WORD);
+            result = new VariableNode(token.text, this);
         }
         return result;
     }
@@ -164,8 +178,70 @@ public class Calculator extends Parser{
 
     }
 
-    public Node Expresion(){
+    public Node Expression(){
         return Relation();
+    }
+
+    // Stuff with Hashmap
+    public Object setVariable(String name, Object value) {
+        symbolTable.put(name, value);
+        return value;
+    }
+
+    public Object getVariable(String name) {
+        Object value = symbolTable.get(name);
+        if (value != null) {
+            return value;
+        }
+        return null;
+    }
+    // End stuff with Hashmap
+
+    private boolean IsAssignment(TokenType currentType){
+        return (currentType == TokenType.WORD && (NextToken().type).equals(TokenType.ASSIGN));
+    }
+
+    private boolean IsNewVar(TokenType currentType){
+        return (currentType == TokenType.WORD && (NextToken().type).equals(TokenType.NEW_VAR));
+    }
+
+    private Node NewVar(){
+        String name = MatchAndEat(TokenType.WORD).text;
+        MatchAndEat(TokenType.NEW_VAR);
+        Node value = Expression();
+        return new AssignmentNode(name, value, this);
+    }
+
+    private Node Assignmet(){
+        String name = MatchAndEat(TokenType.WORD).text;
+        MatchAndEat(TokenType.ASSIGN);
+        Node value = Expression();
+
+        return new AssignmentNode(name, value, this);
+    }
+
+    public Node Statement(){
+        Node nodo = null;
+        TokenType type = CurrentToken().type;
+
+        if(IsAssignment(type)){
+            nodo = Assignmet();
+        }else if(IsNewVar(type)){
+            nodo = NewVar();
+        }
+        return nodo;
+    }
+
+    public List Block()
+    {
+        List<Node> statements = new LinkedList<Node>();
+        while ( CurrentToken().type != TokenType.END && CurrentToken().type != TokenType.NEWLINE)
+        {
+            statements.add(Statement());
+        }
+        //MatchAndEat(TokenType.END);
+        EatToken(1);
+        return statements;
     }
 
     public void PrettyPrint(List<Token> tokens)

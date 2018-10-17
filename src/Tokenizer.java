@@ -3,13 +3,13 @@ import java.util.ArrayList;
 
 public class Tokenizer {
 
-    public boolean IsOp(char chr)
+    private boolean IsOp(char chr)
     {
         return chr == '+' || chr == '-' ||
                 chr == '*' || chr == '/';
     }
 
-    public TokenType FindOpType(char firstOperator)
+    private TokenType FindOpType(char firstOperator)
     {
         TokenType type = TokenType.UNKNOWN;
         switch(firstOperator)
@@ -30,11 +30,11 @@ public class Tokenizer {
         return type;
     }
 
-    public boolean IsParen(char chr) {
+    private boolean IsParen(char chr) {
         return chr == '(' || chr == ')';
     }
 
-    public TokenType FindParenType(char chr)
+    private TokenType FindParenType(char chr)
     {
         TokenType type = TokenType.UNKNOWN;
         switch(chr)
@@ -49,11 +49,11 @@ public class Tokenizer {
         return type;
     }
 
-    public boolean IsLogicOp(char chr) {
+    private boolean IsLogicOp(char chr) {
         return chr == '<' || chr == '>' || chr == '=' || chr == '!';
     }
 
-    public TokenType FindLogicType(String op) {
+    private TokenType FindLogicType(String op) {
         TokenType type = TokenType.UNKNOWN;
         if(op.equals("<")){
             type = TokenType.LESS_THAN;
@@ -72,8 +72,22 @@ public class Tokenizer {
         return type;
     }
 
-    public boolean IsABC(char chr){
+    private boolean IsABC(char chr){
         return Character.isLetter(chr);
+    }
+
+    private TokenType KeywordType(String word){
+        TokenType result = TokenType.WORD;
+        if(word.equals("while")){
+            result = TokenType.WHILE;
+        }else if(word.equals("PI")){
+            result = TokenType.PI;
+        }else if(word.equals("E")){
+            result = TokenType.E;
+        }else if(word.equals("END")){
+            result = TokenType.END;
+        }
+        return result;
     }
 
     public List<Token> Tokenize(String source)
@@ -147,7 +161,7 @@ public class Tokenizer {
                     if(IsABC(chr)){
                         token += chr;
                     }else{
-                        TokenType word = TokenType.WORD;
+                        TokenType word = KeywordType(token);
                         tokens.add(new Token(token, word));
                         token = "";
                         state = TokenizeState.DEFAULT;
