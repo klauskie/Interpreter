@@ -246,6 +246,28 @@ public class Calculator {
         return new WhileNode(condition, body);
     }
 
+    private boolean IsIfElse()
+    {
+        TokenType type = CurrentToken().type;
+        return type == TokenType.IF || type == TokenType.ELSE;
+    }
+
+    private Node IFFunc(){
+        Node condition = null, thenPart = null, elsePart = null;
+
+        MatchAndEat(TokenType.IF);
+        condition = Expression();
+        thenPart = Block();
+
+        if ( CurrentToken().type == TokenType.ELSE )
+        {
+            MatchAndEat(TokenType.ELSE);
+            if ( CurrentToken().type == TokenType.IF ) elsePart = IFFunc();
+            else elsePart = Block();
+        }
+        return new IfNode(condition, thenPart, elsePart);
+    }
+
     public Node Statement(){
         Node nodo = null;
         TokenType type = CurrentToken().type;
@@ -258,6 +280,8 @@ public class Calculator {
             nodo = Expression();
         }else if(CurrentToken().type == TokenType.WHILE){
             nodo = WhileFunc();
+        }else if(IsIfElse()){
+            nodo = IFFunc();
         }
         return nodo;
     }

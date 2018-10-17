@@ -93,6 +93,10 @@ public class Tokenizer {
             result = TokenType.E;
         }else if(word.equals("END")){
             result = TokenType.END;
+        }else if(word.equals("if")){
+            result = TokenType.IF;
+        }else if(word.equals("else")){
+            result = TokenType.ELSE;
         }
         return result;
     }

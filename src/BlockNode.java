@@ -24,7 +24,7 @@ public class BlockNode extends Node{
     public String toString() {
         String str = "";
         for (Node statement: statements)
-            str = str + statement + "\n";
+            str += statement + "\n";
         return str;
     }
 }

@@ -15,8 +15,6 @@ public class Main {
         String source = LeerArchivo(path);
         source += " ";
 
-        System.out.println(source);
-
         calc.tokens = tokenizer.Tokenize(source);
         //calc.PrettyPrint(calc.tokens);
 
@@ -25,23 +23,8 @@ public class Main {
         script.evaluate();
     }
 
-    public static void init3(){
-        String expression = "2*2";
-        expression += " ";
-        Tokenizer tokenizer = new Tokenizer();
-        Calculator calc = new Calculator();
 
-        calc.tokens = tokenizer.Tokenize(expression);
-
-        System.out.println("Expression: " + expression);
-        System.out.println("--------------------------");
-        calc.PrettyPrint(calc.tokens);
-        System.out.println("--------------------------");
-        System.out.println(calc.Expression().evaluate());
-    }
-
-
-    public static void init2(){
+    public static void init(){
         Tokenizer tokenizer = new Tokenizer();
         Calculator calc = new Calculator();
 
