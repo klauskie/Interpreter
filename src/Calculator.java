@@ -238,19 +238,31 @@ public class Calculator {
         return new AssignmentNode(name, value, this);
     }
 
+    private Node WhileFunc(){
+        Node condition, body;
+        MatchAndEat(TokenType.WHILE);
+        condition = Expression();
+        body = Block();
+        return new WhileNode(condition, body);
+    }
+
     public Node Statement(){
         Node nodo = null;
         TokenType type = CurrentToken().type;
 
-        if(IsAssignment(type)){
+        if(IsAssignment(type)){ // If statement is an assignment
             nodo = Assignmet();
-        }else if(IsNewVar(type)){
+        }else if(IsNewVar(type)){ // If statement is a new variable
             nodo = NewVar();
+        }else if(type == TokenType.NUMBER){ // If statement starts with a number.
+            nodo = Expression();
+        }else if(CurrentToken().type == TokenType.WHILE){
+            nodo = WhileFunc();
         }
         return nodo;
     }
 
-    public List Block()
+    public BlockNode Block()
     {
         List<Node> statements = new LinkedList<Node>();
         while ( CurrentToken().type != TokenType.END && CurrentToken().type != TokenType.NEWLINE)
@@ -259,7 +271,7 @@ public class Calculator {
         }
         //MatchAndEat(TokenType.END);
         EatToken(1);
-        return statements;
+        return new BlockNode(statements);
     }
 
     public void PrettyPrint(List<Token> tokens)

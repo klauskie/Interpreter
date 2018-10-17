@@ -4,20 +4,23 @@ import java.util.LinkedList;
 public class Main {
 
     public static void main(String[] args) {
-        /*
-        String expression = "0*6";
+
+        init2();
+    }
+
+    public static void init3(){
+        String expression = "2*2";
         expression += " ";
         Tokenizer tokenizer = new Tokenizer();
-        Calculator calc = new Calculator(tokenizer.Tokenize(expression));
+        Calculator calc = new Calculator();
+
+        calc.tokens = tokenizer.Tokenize(expression);
 
         System.out.println("Expression: " + expression);
         System.out.println("--------------------------");
         calc.PrettyPrint(calc.tokens);
         System.out.println("--------------------------");
         System.out.println(calc.Expression().evaluate());
-        */
-        //init();
-        init2();
     }
 
     public static void init(){
@@ -28,7 +31,8 @@ public class Main {
         //expressions.add("(3+4) ");
         //expressions.add("(4 * 6) ");
         //expressions.add("(3 != 3)  ");
-        expressions.add("var := 5*3;  ");
+        expressions.add("while;  ");
+        calc.PrettyPrint(calc.tokens);
 
         List<Node> commandList = new LinkedList<Node>();
         // Interpretar
@@ -48,13 +52,12 @@ public class Main {
         Tokenizer tokenizer = new Tokenizer();
         Calculator calc = new Calculator();
 
-        calc.tokens = tokenizer.Tokenize(" var := 5-1*2; ");
+        calc.tokens = tokenizer.Tokenize(" var := 4 while var != 0 var : var - 1; ; ");
         calc.PrettyPrint(calc.tokens);
 
-        List<Node> script = calc.Block();
-        for (Node statement:script)
-            System.out.println(statement.evaluate());
+        Node script = calc.Block();
 
+        script.evaluate();
 
 
         // print map
