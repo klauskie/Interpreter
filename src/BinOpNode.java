@@ -1,3 +1,5 @@
+import java.lang.Math;
+
 public class BinOpNode extends Node{
 
     public TokenType operator;
@@ -41,6 +43,12 @@ public class BinOpNode extends Node{
                     System.exit(0);
                 }
                 result = getValue(left) / getValue(right);
+                break;
+            case EXPONENT:
+                result = (int)Math.pow(getValue(left), getValue(right));
+                break;
+            case MODULUS:
+                result = getValue(left) % getValue(right);
                 break;
             case LESS_THAN:
                 result = getValue(left) < getValue(right);

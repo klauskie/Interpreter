@@ -64,12 +64,22 @@ public class Calculator {
 
     private Node Multiply() {
         MatchAndEat(TokenType.MULTIPLY);
-        return Factor();
+        return Term();
     }
 
     private Node Divide() {
         MatchAndEat(TokenType.DIVIDE);
+        return Term();
+    }
+
+    private Node Exponent() {
+        MatchAndEat(TokenType.EXPONENT);
         return Factor();
+    }
+
+    private Node Modulus() {
+        MatchAndEat(TokenType.MODULUS);
+        return Term();
     }
 
     private Node Factor()
@@ -106,7 +116,9 @@ public class Calculator {
     {
         Node result = SignedFactor();
         while ( CurrentToken().type == TokenType.MULTIPLY ||
-                CurrentToken().type == TokenType.DIVIDE )
+                CurrentToken().type == TokenType.DIVIDE ||
+                CurrentToken().type == TokenType.EXPONENT ||
+                CurrentToken().type == TokenType.MODULUS)
         {
             switch(CurrentToken().type)
             {
@@ -115,6 +127,12 @@ public class Calculator {
                     break;
                 case DIVIDE:
                     result = new BinOpNode(TokenType.DIVIDE, result, Divide());
+                    break;
+                case EXPONENT:
+                    result = new BinOpNode(TokenType.EXPONENT, result, Exponent());
+                    break;
+                case MODULUS:
+                    result = new BinOpNode(TokenType.MODULUS, result, Modulus());
                     break;
             }
         }

@@ -6,7 +6,8 @@ public class Tokenizer {
     private boolean IsOp(char chr)
     {
         return chr == '+' || chr == '-' ||
-                chr == '*' || chr == '/';
+                chr == '*' || chr == '/' ||
+                chr == '^' || chr == '%';
     }
 
     private TokenType FindOpType(char firstOperator)
@@ -25,6 +26,12 @@ public class Tokenizer {
                 break;
             case '/':
                 type = TokenType.DIVIDE;
+                break;
+            case '^':
+                type = TokenType.EXPONENT;
+                break;
+            case '%':
+                type = TokenType.MODULUS;
                 break;
         }
         return type;

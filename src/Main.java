@@ -28,7 +28,7 @@ public class Main {
         //expressions.add("(3+4) ");
         //expressions.add("(4 * 6) ");
         //expressions.add("(3 != 3)  ");
-        expressions.add("var := 3  ");
+        expressions.add("var := 5*3;  ");
 
         List<Node> commandList = new LinkedList<Node>();
         // Interpretar
@@ -48,8 +48,8 @@ public class Main {
         Tokenizer tokenizer = new Tokenizer();
         Calculator calc = new Calculator();
 
-        calc.tokens = tokenizer.Tokenize(" ver := 4 ver : ver + 5 END ");
-        //calc.PrettyPrint(calc.tokens);
+        calc.tokens = tokenizer.Tokenize(" var := 5-1*2; ");
+        calc.PrettyPrint(calc.tokens);
 
         List<Node> script = calc.Block();
         for (Node statement:script)
