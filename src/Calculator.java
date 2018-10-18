@@ -12,6 +12,8 @@ public class Calculator {
 
     public Calculator(List<Token> tokens){
         this.tokens = tokens;
+        this.setVariable("PI", 3);
+        this.setVariable("E", 2);
     }
 
     private Token GetToken(int offset) {
@@ -31,13 +33,11 @@ public class Calculator {
         return GetToken(1);
     }
 
-    // Just eats the token(s) given in the offset
     private void EatToken(int offset)
     {
         currentTokenPosition += offset;
     }
 
-    // Eats the token given type and returns eaten token
     private Token MatchAndEat(TokenType type) {
         Token token = CurrentToken();
         if (CurrentToken().type != type) {

@@ -107,9 +107,9 @@ public class Tokenizer {
         }else if(word.equals("for")){
             result = TokenType.FOR;
         }else if(word.equals("PI")){
-            result = TokenType.PI;
+            result = TokenType.WORD;
         }else if(word.equals("E")){
-            result = TokenType.E;
+            result = TokenType.WORD;
         }else if(word.equals("END")){
             result = TokenType.ENDBLOCK;
         }else if(word.equals("if")){

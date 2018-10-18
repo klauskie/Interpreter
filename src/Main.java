@@ -66,6 +66,7 @@ public class Main {
 
             while (line != null) {
                 sb.append(line);
+                sb.append(" ");
                 line = br.readLine();
             }
             return sb.toString();

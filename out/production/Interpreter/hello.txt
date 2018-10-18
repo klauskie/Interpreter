@@ -1,0 +1,9 @@
+{
+rip := 2
+
+function name (a,b) {
+	return := a + b
+}
+
+rip : name(1,2)
+}
