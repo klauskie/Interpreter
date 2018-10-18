@@ -8,6 +8,7 @@ public class BlockNode extends Node{
     }
 
     public Object evaluate() {
+        //System.out.println("hola..");
         Object temp = null;
         for (Node statement : statements)
         {

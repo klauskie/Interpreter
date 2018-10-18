@@ -1,8 +1,13 @@
 {
 
-r := 3
-a := 4
-r : r + a + E
+a := 4 
+r := 0
+function fuck (){
+    println(a)
+    r : a * 5
+}
+
+r : fuck()
 println(r)
 
 }

@@ -19,7 +19,7 @@ public class Main {
         source += " ";
 
         Calculator parser = new Calculator(tokenizer.Tokenize(source));
-        parser.PrettyPrint(parser.tokens);
+        parser.PrintTokens();
 
         Node script = parser.Block();
 
@@ -32,19 +32,12 @@ public class Main {
 
     public static void init(){
         Tokenizer tokenizer = new Tokenizer();
-        String source =
-                "{\n" +
-                        "rip := 2\n" +
-                        "function name (a,b) {\n" +
-                        "\treturn := a + b\n" +
-                        "}\n" +
-                        "e : name(1,2)\n" +
-                        "}";
+        String source = "{function fun (a) { println(a) } fun(3) } ";
 
 
         Calculator calc = new Calculator(tokenizer.Tokenize(source));
 
-        calc.PrettyPrint(calc.tokens);
+        calc.PrintTokens();
 
         Node script = calc.Block();
 

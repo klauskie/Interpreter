@@ -1,8 +1,8 @@
 public class NumberNode extends Node {
 
-    public Integer value;
+    public Float value;
 
-    public NumberNode(Integer type){
+    public NumberNode(Float type){
         this.value = type;
     }
     public Object evaluate() {

@@ -12,10 +12,9 @@ public class BinOpNode extends Node{
         this.right = right;
     }
 
-    public int getValue(Node node)
-    {
+    public float getValue(Node node) {
         Object res = node.evaluate();
-        return (Integer)res;
+        return (float)res;
     }
 
     public Object ToObject(Node node)

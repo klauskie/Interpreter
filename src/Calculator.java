@@ -7,13 +7,14 @@ import java.util.Map;
 public class Calculator {
 
     private int currentTokenPosition = 0;
-    public List<Token> tokens;
+    private List<Token> tokens;
     public Map<String, Object> stack = new HashMap<String, Object>();
 
+    // ---- Constructor----
     public Calculator(List<Token> tokens){
         this.tokens = tokens;
-        this.setVariable("PI", 3);
-        this.setVariable("E", 2);
+        this.setVariable("PI", 3.141592653589793f);
+        this.setVariable("E", 2.718281828459045f);
     }
 
     private Token GetToken(int offset) {
@@ -89,7 +90,8 @@ public class Calculator {
         }
         else if (CurrentToken().type == TokenType.NUMBER) {
 
-            result = new NumberNode(Integer.parseInt(CurrentToken().text));
+            //result = new NumberNode(Integer.parseInt(CurrentToken().text));
+            result = new NumberNode(Float.parseFloat(CurrentToken().text));
             MatchAndEat(TokenType.NUMBER);
         }
         else if (CurrentToken().type == TokenType.WORD) {
@@ -360,17 +362,17 @@ public class Calculator {
 
     public Object ExecuteFunction(FunctionNode function, List<BoundParameter> boundParameters)
     {
-        // Save the symbolTable
+
         Map<String, Object> savedSymbolTable = new HashMap<>(this.stack);
-        // Get bound parameters
+
         for (int index = 0; index < boundParameters.size(); index++) {
 
             BoundParameter param = boundParameters.get(index);
             setVariable(param.getName(), param.getValue());
         }
-        // Evaluate function
+
         Object ret = function.evaluate();
-        // Restore symbolTable
+
         this.stack = savedSymbolTable;
         return ret;
     }
@@ -424,9 +426,9 @@ public class Calculator {
         return new BlockNode(statements);
     }
 
-    public void PrettyPrint(List<Token> tokens)
+    public void PrintTokens()
     {
-        for (Token token: tokens)
+        for (Token token: this.tokens)
         {
 
             if (token.type == TokenType.NUMBER)
