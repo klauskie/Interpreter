@@ -8,40 +8,52 @@ public class Main {
 
     public static void main(String[] args) {
 
+        initMain(args[0]);
+        //init();
+    }
+
+    public static void initMain(String path){
         Tokenizer tokenizer = new Tokenizer();
 
-        String path = args[0];
         String source = LeerArchivo(path);
         source += " ";
 
         Calculator parser = new Calculator(tokenizer.Tokenize(source));
+        parser.PrettyPrint(parser.tokens);
 
         Node script = parser.Block();
 
         script.evaluate();
 
         // print map
+        System.out.println("Printing variables...");
         parser.stack.forEach((k, v) -> System.out.println((k + ":" + v)));
     }
-
 
     public static void init(){
         Tokenizer tokenizer = new Tokenizer();
         String source =
-                "var := 4 " +
-                "while var != 0 " +
-                "var : var - 1 END " +
-                "END ";
+                "{\n" +
+                        "rip := 2\n" +
+                        "function name (a,b) {\n" +
+                        "\treturn := a + b\n" +
+                        "}\n" +
+                        "e : name(1,2)\n" +
+                        "}";
 
 
         Calculator calc = new Calculator(tokenizer.Tokenize(source));
 
+        calc.PrettyPrint(calc.tokens);
+
         Node script = calc.Block();
+
+        // print map
+        System.out.println("Printing variables...");
+        calc.stack.forEach((k, v) -> System.out.println((k + ":" + v)));
 
         script.evaluate();
 
-        // print map
-        calc.stack.forEach((k, v) -> System.out.println((k + ":" + v)));
     }
 
 

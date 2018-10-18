@@ -12,7 +12,9 @@ public class BlockNode extends Node{
         for (Node statement : statements)
         {
             temp = statement.evaluate();
-            System.out.println(temp);
+            if(statement instanceof PrintNode){
+                System.out.println(temp);
+            }
         }
         return temp;
     }

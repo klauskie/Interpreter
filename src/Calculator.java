@@ -7,7 +7,7 @@ import java.util.Map;
 public class Calculator {
 
     private int currentTokenPosition = 0;
-    private List<Token> tokens;
+    public List<Token> tokens;
     public Map<String, Object> stack = new HashMap<String, Object>();
 
     public Calculator(List<Token> tokens){
@@ -220,15 +220,26 @@ public class Calculator {
 
     private Node NewVar(){
         String name = MatchAndEat(TokenType.WORD).text;
+        Node value = null;
         MatchAndEat(TokenType.NEW_VAR);
-        Node value = Expression();
+        if(IsFunctionCall(CurrentToken().type)){
+            value = FunctionCall();
+        }else{
+            value = Expression();
+        }
+
         return new AssignmentNode(name, value, this);
     }
 
     private Node Assignmet(){
         String name = MatchAndEat(TokenType.WORD).text;
+        Node value = null;
         MatchAndEat(TokenType.ASSIGN);
-        Node value = Expression();
+        if(IsFunctionCall(CurrentToken().type)){
+            value = FunctionCall();
+        }else{
+            value = Expression();
+        }
 
         return new AssignmentNode(name, value, this);
     }
@@ -241,6 +252,21 @@ public class Calculator {
         MatchAndEat(TokenType.RIGHT_PAREN);
         body = Block();
         return new WhileNode(condition, body);
+    }
+
+    private Node ForFunc(){
+        Node variable, condition, var_increment, body;
+        MatchAndEat(TokenType.FOR);
+        MatchAndEat(TokenType.LEFT_PAREN);
+        variable = NewVar();
+        MatchAndEat(TokenType.NEWLINE);
+        condition = Expression();
+        MatchAndEat(TokenType.NEWLINE);
+        var_increment = Assignmet();
+        MatchAndEat(TokenType.RIGHT_PAREN);
+        body = Block();
+        return new ForNode(variable, condition, var_increment, body);
+
     }
 
     private boolean IsIfElse()
@@ -280,12 +306,16 @@ public class Calculator {
 
         Node functionBody = Block();
         FunctionNode function = new FunctionNode(functionName, functionBody, parameters);
+        System.out.println(function.getBody());
         return new AssignmentNode(functionName, function, this);
     }
 
-    private boolean IsFunctionCall(){
-        TokenType type = CurrentToken().type;
+    private boolean IsFunctionCall(TokenType type){
         return type == TokenType.WORD && NextToken().type == TokenType.LEFT_PAREN;
+    }
+
+    private boolean IsFunction(TokenType type){
+        return type == TokenType.FUNCTION && NextToken().type == TokenType.WORD;
     }
 
     private Node FunctionCall(){
@@ -328,6 +358,32 @@ public class Calculator {
         return parameters;
     }
 
+    public Object ExecuteFunction(FunctionNode function, List<BoundParameter> boundParameters)
+    {
+        // Save the symbolTable
+        Map<String, Object> savedSymbolTable = new HashMap<>(this.stack);
+        // Get bound parameters
+        for (int index = 0; index < boundParameters.size(); index++) {
+
+            BoundParameter param = boundParameters.get(index);
+            setVariable(param.getName(), param.getValue());
+        }
+        // Evaluate function
+        Object ret = function.evaluate();
+        // Restore symbolTable
+        this.stack = savedSymbolTable;
+        return ret;
+    }
+
+    private Node PrintFunc(){
+        MatchAndEat(TokenType.PRINTLN);
+        MatchAndEat(TokenType.LEFT_PAREN);
+        Node stuff = Expression();
+        MatchAndEat(TokenType.RIGHT_PAREN);
+        return new PrintNode(stuff);
+    }
+
+    // ------ Statement --------
     private Node Statement(){
         Node nodo = null;
         TokenType type = CurrentToken().type;
@@ -340,17 +396,22 @@ public class Calculator {
             nodo = Expression();
         }else if(CurrentToken().type == TokenType.WHILE){
             nodo = WhileFunc();
+        }else if(CurrentToken().type == TokenType.FOR){
+            nodo = ForFunc();
         }else if(IsIfElse()){
             nodo = IFFunc();
-        }else if(CurrentToken().type == TokenType.FUNCTION){
+        }else if(IsFunction(type)){
             nodo = FunctionDef();
-        }else if(IsFunctionCall()){
+        }else if(IsFunctionCall(type)){
             nodo = FunctionCall();
+        }else if(type == TokenType.PRINTLN){
+            nodo = PrintFunc();
         }
         return nodo;
     }
 
 
+    // ------ Block Func ------
     public BlockNode Block()
     {
         MatchAndEat(TokenType.STARTBLOCK);
@@ -365,15 +426,12 @@ public class Calculator {
 
     public void PrettyPrint(List<Token> tokens)
     {
-        int numberCount = 0;
-        int opCount = 0;
         for (Token token: tokens)
         {
 
             if (token.type == TokenType.NUMBER)
             {
                 System.out.println("Number....: " + token.text);
-                numberCount++;
             }
             else if (token.type == TokenType.WORD) {
                 System.out.println("WORD..: " + token.text);
@@ -381,7 +439,6 @@ public class Calculator {
             else
             {
                 System.out.println("Operator..: " + token.type);
-                opCount++;
             }
 
         }

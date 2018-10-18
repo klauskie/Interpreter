@@ -3,7 +3,6 @@ public class AssignmentNode extends Node
     public String name;
     public Node value;
     public Calculator parser;
-    public String scope;
 
     public AssignmentNode(String name, Node value, Calculator parser)
     {
@@ -13,6 +12,14 @@ public class AssignmentNode extends Node
     }
     public Object evaluate()
     {
-        return parser.setVariable(name, value.evaluate());
+        if (value instanceof FunctionNode){
+            return parser.setVariable(name, value);
+        }else if(value instanceof FunctionCallNode){
+            return parser.setVariable(name, value);
+        }
+        else{
+            return parser.setVariable(name, value.evaluate());
+        }
+
     }
 }

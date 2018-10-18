@@ -104,6 +104,8 @@ public class Tokenizer {
         TokenType result = TokenType.WORD;
         if(word.equals("while")){
             result = TokenType.WHILE;
+        }else if(word.equals("for")){
+            result = TokenType.FOR;
         }else if(word.equals("PI")){
             result = TokenType.PI;
         }else if(word.equals("E")){
@@ -116,6 +118,8 @@ public class Tokenizer {
             result = TokenType.ELSE;
         }else if(word.equals("function")){
             result = TokenType.FUNCTION;
+        }else if(word.equals("println")){
+            result = TokenType.PRINTLN;
         }
         return result;
     }

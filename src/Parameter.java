@@ -17,11 +17,15 @@ public class Parameter{
 
     // getValue
     public Object evaluate(){
-        return value.evaluate();
+        return this.value.evaluate();
     }
 
     public String getName(){
         return name;
+    }
+
+    public Object getValue(){
+        return this.value.evaluate();
     }
 
 

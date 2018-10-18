@@ -24,6 +24,7 @@ public class FunctionNode extends Node
     {
         return body;
     }
+
     public String getName()
     {
         return name;
