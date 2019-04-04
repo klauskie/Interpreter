@@ -2,12 +2,12 @@
 
 a := 4 
 r := 0
-function fuck (){
+function foo (){
     println(a)
     r : a * 5
 }
 
-r : fuck()
+r : foo()
 println(r)
 
 }
